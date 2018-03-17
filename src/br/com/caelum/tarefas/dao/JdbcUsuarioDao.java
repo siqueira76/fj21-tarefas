@@ -1,11 +1,13 @@
 package br.com.caelum.tarefas.dao;
 
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import br.com.caelum.tarefas.ConnectionFactory;
+import br.com.caelum.tarefas.cripto.SHA1;
 import br.com.caelum.tarefas.modelo.Usuario;
 
 public class JdbcUsuarioDao {
@@ -29,7 +31,7 @@ public class JdbcUsuarioDao {
 			PreparedStatement stmt = this.connection
 					.prepareStatement("select * from usuarios where login = ? and senha = ?");
 			stmt.setString(1, usuario.getLogin());
-			stmt.setString(2, usuario.getSenha());
+			stmt.setString(2, SHA1.hash(usuario.getSenha().getBytes()));
 			ResultSet rs = stmt.executeQuery();
 
 			boolean encontrado = rs.next();
@@ -37,7 +39,7 @@ public class JdbcUsuarioDao {
 			stmt.close();
 
 			return encontrado;
-		} catch (SQLException e) {
+		} catch (SQLException | NoSuchAlgorithmException e) {
 			throw new RuntimeException(e);
 		}
 	}
